@@ -7,9 +7,7 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-OPEN_AI_API_KEY = os.environ.get(
-    "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"
-)
+OPEN_AI_API_KEY = os.environ.get("OPEN_AI_API_KEY")
 OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
 
 
