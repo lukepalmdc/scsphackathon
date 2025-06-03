@@ -1,61 +1,41 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
-import requests
-import openai
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from openai import OpenAI
 import os
+from dotenv import load_dotenv
 
-app = Flask(__name__)
-CORS(app)
+load_dotenv()
+
+client = OpenAI(api_key=os.getenv("OPEN_AI_API_KEY"))
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
-OPEN_AI_API_KEY = os.environ.get("OPEN_AI_API_KEY")
-OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
+@app.post("/api/chat")
+async def chat_with_ai(payload: dict):
+    user_prompt = payload.get("prompt", "")
+    if not user_prompt:
+        return JSONResponse(status_code=400, content={"error": "Prompt is required."})
 
-
-@app.route("/api/chat", methods=["POST"])
-def chat():
-    user_message = request.form.get("message")
-    file = request.files.get("file")
-
-    headers = {
-        "Authorization": f"Bearer: {OPEN_AI_API_KEY}",
-    }
-
-    if file:
-        files = {
-            "file": (file.filename, file.stream, file.mimetype),
-        }
-        data = {
-            "input": user_message or "",
-            "model": "gpt-3.5-turbo",
-        }
-        response = requests.post(
-            OPENAI_RESPONSES_URL,
-            headers=headers,
-            data=data,
-            files=files,
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful policy analyst."},
+                {"role": "user", "content": user_prompt},
+            ],
+            temperature=0.7,
+            max_tokens=300,
         )
-    else:
-        json_data = {
-            "input": user_message,
-            "model": "gpt-3.5-turbo",
-        }
-        headers["Content-Type"] = "application/json"
-        response = requests.post(
-            OPENAI_RESPONSES_URL,
-            headers=headers,
-            json=json_data,
-        )
-
-    if response.ok:
-        result = response.json()
-        reply = result.get("output") or result.get("choices", [{}])[0].get(
-            "text", "No reply found."
-        )
-        return jsonify({"reply": reply})
-    else:
-        return jsonify({"reply": f"Error: {response.text}"}), response.status_code
-
-
-if __name__ == "__main__":
-    app.run(port=8000, debug=True)
+        reply = response.choices[0].message.content
+        return {"reply": reply}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
