@@ -1,0 +1,41 @@
+import openai
+import os
+
+OPEN_AI_API_KEY = os.environ.get("OPEN_AI_API_KEY")
+client = openai.OpenAI(api_key=OPEN_AI_API_KEY)
+
+stream = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Tell me a story."},
+    ],
+    stream=True,  # <--- This enables streaming
+)
+
+for chunk in stream:
+    # Each 'chunk' is a partial response
+    if chunk.choices[0].delta.content is not None:
+        print("Welcome to the ChatGPT! Type 'exit' to quit.\n")
+
+while True:
+    user_input = input("You: ")
+    if user_input.lower() in ["exit", "quit"]:
+        print("Goodbye! 👋")
+        break
+
+    print("Assistant: ", end="", flush=True)
+    stream = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": user_input},
+        ],
+        stream=True,
+    )
+
+    for chunk in stream:
+        content = chunk.choices[0].delta.content
+        if content:
+            print(content, end="", flush=True)
+    print("\n")
