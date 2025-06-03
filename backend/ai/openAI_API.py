@@ -1,41 +1,62 @@
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+import requests
 import openai
 import os
 
-OPEN_AI_API_KEY = os.environ.get("OPEN_AI_API_KEY")
-client = openai.OpenAI(api_key=OPEN_AI_API_KEY)
+app = Flask(__name__)
+CORS(app)
 
-stream = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Tell me a story."},
-    ],
-    stream=True,  # <--- This enables streaming
+OPEN_AI_API_KEY = os.environ.get(
+    "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"
 )
+OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
 
-for chunk in stream:
-    # Each 'chunk' is a partial response
-    if chunk.choices[0].delta.content is not None:
-        print("Welcome to the ChatGPT! Type 'exit' to quit.\n")
 
-while True:
-    user_input = input("You: ")
-    if user_input.lower() in ["exit", "quit"]:
-        print("Goodbye! 👋")
-        break
+@app.route("/api/chat", methods=["POST"])
+def chat():
+    user_message = request.form.get("message")
+    file = request.files.get("file")
 
-    print("Assistant: ", end="", flush=True)
-    stream = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": user_input},
-        ],
-        stream=True,
-    )
+    headers = {
+        "Authorization": f"Bearer: {OPEN_AI_API_KEY}",
+    }
 
-    for chunk in stream:
-        content = chunk.choices[0].delta.content
-        if content:
-            print(content, end="", flush=True)
-    print("\n")
+    if file:
+        files = {
+            "file": (file.filename, file.stream, file.mimetype),
+        }
+        data = {
+            "input": user_message or "",
+            "model": "gpt-3.5-turbo",
+        }
+        response = requests.post(
+            OPENAI_RESPONSES_URL,
+            headers=headers,
+            data=data,
+            files=files,
+        )
+    else:
+        json_data = {
+            "input": user_message,
+            "model": "gpt-3.5-turbo",
+        }
+        headers["Content-Type"] = "application/json"
+        response = requests.post(
+            OPENAI_RESPONSES_URL,
+            headers=headers,
+            json=json_data,
+        )
+
+    if response.ok:
+        result = response.json()
+        reply = result.get("output") or result.get("choices", [{}])[0].get(
+            "text", "No reply found."
+        )
+        return jsonify({"reply": reply})
+    else:
+        return jsonify({"reply": f"Error: {response.text}"}), response.status_code
+
+
+if __name__ == "__main__":
+    app.run(port=8000, debug=True)
