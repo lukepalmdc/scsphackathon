@@ -36,8 +36,21 @@ function App() {
         e.preventDefault();
         if (!chatInput && !chatFile) return;
         setChatHistory((prev) => [...prev, { sender: "user", text: chatInput, file: chatFile?.name }]);
-        // TODO: send chatInput and chatFile to backend for response
-        setChatHistory((prev) => [...prev, { sender: "bot", text: "Bot response" }]);
+        
+        const formData = new FormData();
+        formData.append("message", chatInput);
+        if (chatFile) formData.append("file", chatFile);
+
+        try {
+            const res = await fetch("http://localhost:8000/api/chat", {
+                method: "POST",
+                body: formData,
+            });
+            const data = await res.json();
+            setChatHistory((prev) => [...prev, { sender: "bot", text:data.reply }]);
+        } catch (err) {
+            setChatHistory((prev) => [...prev, { sender: "bot", text: "Error: Could not get response."}]);
+        }
         setChatInput("");
         setChatFile(null);
     }
