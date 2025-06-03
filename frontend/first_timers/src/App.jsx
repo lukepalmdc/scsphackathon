@@ -1,32 +1,46 @@
 import React, { useState } from "react";
 import { getTradeData, getRiskScore, getBrief } from "./api";
+// TODO: change api imports to reflect actual terms, delete comment later 
 
 function App() {
     const [hsCode, setHsCode] = useState("1006");
     const [year, setYear] = useState(2023);
-    const [table, setTable] = useState([]);
+    const [table, setTable] = useState([]); // Stores trade data table as an array
     const [brief, setBrief] = useState("");
     const [score, setScore] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false); // Displayed when data is being fetched
+    const [error, setError] = useState(null); // Error message
+    const [chatInput, setChatInput] = useState("");
+    const [chatHistory, setChatHistory] = useState([]);
+    const [chatFile, setChatFile] = useState(null);
 
     const fetchData = async () => {
-        setLoading(true);
-        setError(null);
+        setLoading(true); // Set loading to true
+        setError(null); // Clear errors
         try{
-            const [data, risk, summary] = await Promise.all([
+            const [data, risk, summary] = await Promise.all([ // Calls all API functions in parallel, better performance
                 getTradeData(hsCode, year),
                 getRiskScore(hsCode, year),
                 getBrief(hsCode, year),
             ]);
-            setTable(data);
-            setScore(risk.risk_score);
-            setBrief(summary.brief);
-        } catch (err) {
+            setTable(data); // Updates with fetched data
+            setScore(risk.risk_score); // Updates with fetched data
+            setBrief(summary.brief); // Updates with fetched data
+        } catch (err) { // Error handling
             setError("Failed to fetch data");
         }
         setLoading(false);
     };
+
+    const handleChatSubmit = async (e) => {
+        e.preventDefault();
+        if (!chatInput && !chatFile) return;
+        setChatHistory((prev) => [...prev, { sender: "user", text: chatInput, file: chatFile?.name }]);
+        // TODO: send chatInput and chatFile to backend for response
+        setChatHistory((prev) => [...prev, { sender: "bot", text: "Bot response" }]);
+        setChatInput("");
+        setChatFile(null);
+    }
 
     return (
         <div className="p-4">
@@ -44,7 +58,7 @@ function App() {
                     <tr><th>Partner</th><th>USD</th><th>%</th></tr>
                 </thead>
                 <tbody>
-                    {table.map((row, i) => (
+                    {table.map((row, i) => ( // Renders table of trade data, mapping each row
                         <tr key={i}>
                             <td>{row.partner}</td>
                             <td>{row.trade_value_usd}</td>
@@ -53,8 +67,34 @@ function App() {
                     ))}
                 </tbody>
             </table>
+            <hr style={{ margin: "2em 0" }} />
+            <h2>Chatbot</h2>
+            <div style={{ border: "1px solid #ccc", padding: "1em", maxHeight: 300, overflowY: "auto" }}>
+                {chatHistory.map((msg, i) => (
+                    <div key={i} style={{ margin: "0.5em 0" }}>
+                        <b>{msg.sender === "user" ? "You" : "Bot"}:</b> {msg.text}
+                        {msg.file && <span> <i>(attached: {msg.file})</i></span>}
+                    </div>
+                ))}
+                <form onSubmit={handleChatSubmit} style={{ marginTop: "1em" }}>
+                    <input 
+                        type="text"
+                        value={chatInput}
+                        onChange={e => setChatInput(e.target.value)}
+                        placeholder="Type your prompt..."
+                        style={{ width: "60%" }}
+                    />
+                    <input
+                        type="file"
+                        accept=".txt,.pdf,.jpeg,.png,.jpg"
+                        onChange={e => setChatFile(e.target.files[0])}
+                        style={{ marginLeft: "1em" }}
+                    />
+                    <button type="submit"style={{ marginLeft: "1em" }}>Submit</button>
+                </form>
+            </div>
         </div>
-    )
+    );
 }
 
 export default App;
