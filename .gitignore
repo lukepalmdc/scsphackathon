@@ -1,0 +1,9 @@
+# Python
+*.env
+*.venv
+env/
+venv/
+
+# Environmental variables
+.env
+.env.*
