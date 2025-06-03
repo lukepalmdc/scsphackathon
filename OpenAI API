@@ -14,6 +14,11 @@ stream = client.chat.completions.create(
 for chunk in stream:
     # Each 'chunk' is a partial response
     if chunk.choices[0].delta.content is not None:
+        # Indent the code that should execute if the condition is true
+        print(chunk.choices[0].delta.content, end='', flush=True)
+
+# Add a newline after the first story is printed
+print("\n")
 
 print("Welcome to the ChatGPT! Type 'exit' to quit.\n")
 
