@@ -1,0 +1,141 @@
+import pandas as pd
+import dash
+from dash import dcc, html, Input, Output
+import openai
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+# --- Load Raw Datasets ---
+imports_df = pd.read_csv(r"C:\Users\aishw\Downloads\Cleaned_U_S_Imports_from_2012.csv")
+lpi_df = pd.read_csv(r"C:\Users\aishw\Downloads\Interpolated_LPI_2015-2024.csv")
+wgi_df = pd.read_excel(r"C:\Users\aishw\Downloads\widget1.xlsx")
+
+# --- Clean and Merge ---
+wgi_df_cleaned = wgi_df[wgi_df['estimate'] != '..'].copy()
+wgi_df_cleaned["estimate"] = pd.to_numeric(wgi_df_cleaned["estimate"], errors="coerce")
+wgi_pivot = wgi_df_cleaned.pivot_table(
+    index=["countryname", "year"],
+    columns="indicator",
+    values="estimate"
+).reset_index()
+wgi_pivot.columns.name = None
+wgi_pivot = wgi_pivot.rename(columns={
+    "countryname": "Country",
+    "year": "Year",
+    "cc": "WGI_ControlOfCorruption",
+    "ge": "WGI_GovtEffectiveness",
+    "rl": "WGI_RuleOfLaw",
+    "rq": "WGI_RegulatoryQuality",
+    "va": "WGI_VoiceAccountability",
+    "pv": "WGI_PoliticalStability"
+})
+
+lpi_clean = lpi_df[["Country", "Year", "LPI_Score_Interpolated"]].rename(
+    columns={"LPI_Score_Interpolated": "LPI_Score"})
+
+imports_clean = imports_df[imports_df["Country"] != "World Total"].copy()
+
+merged = imports_clean.merge(lpi_clean, on=["Country", "Year"], how="left")
+merged = merged.merge(wgi_pivot, on=["Country", "Year"], how="left")
+
+filtered_df = merged.dropna(subset=[
+    "ImportValueUSD", "LPI_Score",
+    "WGI_ControlOfCorruption", "WGI_GovtEffectiveness",
+    "WGI_PoliticalStability", "WGI_RuleOfLaw",
+    "WGI_RegulatoryQuality", "WGI_VoiceAccountability"
+]).copy()
+
+# --- Feature Engineering ---
+commodity_totals = filtered_df.groupby(["Commodity", "Year"])["ImportValueUSD"].transform("sum")
+filtered_df["DependencyShare"] = filtered_df["ImportValueUSD"] / commodity_totals
+
+features = ["DependencyShare", "LPI_Score", "WGI_ControlOfCorruption", "WGI_GovtEffectiveness",
+            "WGI_PoliticalStability", "WGI_RuleOfLaw", "WGI_RegulatoryQuality", "WGI_VoiceAccountability"]
+X = filtered_df[features]
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Create Risk Level labels via quantile binning for supervised training
+y = pd.qcut(filtered_df["DependencyShare"], q=3, labels=["Low", "Medium", "High"])
+
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, stratify=y, test_size=0.3, random_state=42)
+clf = RandomForestClassifier(n_estimators=200, max_depth=10, random_state=42)
+clf.fit(X_train, y_train)
+filtered_df["PredictedRisk"] = clf.predict(scaler.transform(X))
+
+# Store the dataframe used by dashboard
+df = filtered_df[[
+    "Country", "Year", "PredictedRisk", "Commodity"
+]].copy()
+
+# --- Set your OpenAI API Key ---
+openai.api_key = "  # Put your actual key lol
+
+# --- GPT-4o Function (openai >= 1.0.0) ---
+def get_political_summary(country):
+    prompt = f"You are an expert geopolitical risk analyst. Summarize the current political risk and sentiment toward the U.S. in {country}, based on recent public and government behavior. Limit to 3-4 professional sentences."
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+# --- Initialize Dash App ---
+app = dash.Dash(__name__)
+app.title = "Supply Chain Risk Monitor"
+
+# --- Layout ---
+app.layout = html.Div([
+    html.H1("AI-Powered Supply Chain Risk Dashboard"),
+    html.Label("Select a Country:"),
+    dcc.Dropdown(
+        options=[{"label": c, "value": c} for c in sorted(df["Country"].unique())],
+        id="country-dropdown",
+        value=df["Country"].iloc[0]
+    ),
+    html.Label("Select a Year:"),
+    dcc.Slider(
+        min=df["Year"].min(), max=df["Year"].max(), step=1,
+        marks={int(year): str(year) for year in sorted(df["Year"].unique())},
+        id="year-slider",
+        value=df["Year"].max()
+    ),
+    html.Label("Select a Commodity:"),
+    dcc.Dropdown(
+        options=[{"label": i, "value": i} for i in sorted(df["Commodity"].unique())],
+        id="commodity-dropdown",
+        value=df["Commodity"].iloc[0]
+    ),
+    html.Br(),
+    html.Div(id="risk-output", style={"marginTop": "20px", "fontWeight": "bold"}),
+    html.Div(id="gpt-summary", style={"marginTop": "10px", "fontStyle": "italic"})
+])
+
+# --- Callbacks ---
+@app.callback(
+    [Output("risk-output", "children"), Output("gpt-summary", "children")],
+    [Input("country-dropdown", "value"), Input("year-slider", "value"), Input("commodity-dropdown", "value")]
+)
+def update_outputs(selected_country, selected_year, selected_commodity):
+    subset = df[(df["Country"] == selected_country) & (df["Commodity"] == selected_commodity)]
+    if subset.empty:
+        return "No data available.", ""
+
+    current_row = subset[subset["Year"] == selected_year]
+    if current_row.empty:
+        return "No data available for selected year.", ""
+
+    current_risk = current_row["PredictedRisk"].iloc[0]
+
+    summary = get_political_summary(selected_country)
+    return f"Country: {selected_country} | Year: {selected_year} | Commodity: {selected_commodity} | Risk: {current_risk}", f"GPT-4o Summary: {summary}"
+
+# --- Run Server ---
+if __name__ == "__main__":
+    app.run(debug=True)
