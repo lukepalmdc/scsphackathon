@@ -8,11 +8,10 @@ import io
 app = FastAPI(title="Supply Chain Risk API")
 
 # --- Load data ---
-imports_df = pd.read_csv(r"C:\Users\aishw\Downloads\Cleaned_U_S_Imports_from_2012.csv")
-lpi_df = pd.read_csv(r"C:\Users\aishw\Downloads\Interpolated_LPI_2015-2024.csv")
-wgi_df = pd.read_excel(r"C:\Users\aishw\Downloads\widget1.xlsx")
-consumption_df = pd.read_excel(r"C:\Users\aishw\Downloads\demo_data_2015_2025.xlsx")
-
+imports_df = pd.read_csv(r"/Users/Shaun/Downloads/Cleaned_U_S_Imports_from_2012.csv")
+lpi_df = pd.read_csv(r"/Users/Shaun/Downloads/Interpolated_LPI_2015-2024.csv")
+wgi_df = pd.read_excel(r"/Users/Shaun/Downloads/widget1.xlsx")
+consumption_df = pd.read_excel(r"/Users/Shaun/Downloads/demo_data_2015_2025.xlsx")
 # --- Clean and merge ---
 wgi_df_cleaned = wgi_df[wgi_df["estimate"] != ".."].copy()
 wgi_df_cleaned["estimate"] = pd.to_numeric(wgi_df_cleaned["estimate"], errors="coerce")

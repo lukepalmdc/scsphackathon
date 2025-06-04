@@ -7,7 +7,7 @@ import json
 from openai import OpenAI
 import tempfile
 import speech_recognition as sr
-from st_audiorec import st_audiorec
+from streamlit_audiorecorder import audiorecorder
 
 # --- Set your OpenAI API Key ---
 client = OpenAI(api_key="your-api-key-here")
@@ -25,61 +25,151 @@ with tab1:
     st.markdown("Select a commodity and year to view the top risk countries.")
 
     commodity_list = [
-        "Green coffee", "Cocoa beans", "Cane and beet sugar", "Meat products", "Dairy products and eggs",
-        "Fruits, frozen juices", "Vegetables", "Nuts", "Food oils, oilseeds", "Bakery products",
-        "Tea, spices, etc.", "Other foods", "Wine, beer, and related products",
-        "Feedstuff and foodgrains", "Fish and shellfish", "Alcoholic beverages, excluding wine",
-        "Nonagricultural foods, etc.", "Crude oil", "Fuel oil", "Petroleum products, other",
-        "Liquefied petroleum gases", "Coal and related fuels", "Gas-natural", "Nuclear fuel materials",
-        "Electric energy", "Pulpwood and woodpulp", "Newsprint", "Paper and paper products",
-        "Cotton, natural fibers", "Hides and skins", "Natural rubber", "Farming materials, livestock",
-        "Tobacco, waxes, etc.", "Cotton cloth, fabrics", "Wool, silk, etc.", "Synthetic cloth",
-        "Hair, waste materials", "Finished textile supplies", "Leather and furs",
-        "Materials, excluding chemicals", "Plastic materials", "Chemicals-fertilizers",
-        "Chemicals-inorganic", "Chemicals-organic", "Chemicals-other, n.e.c.", "Lumber",
-        "Plywood and veneers", "Stone, sand, cement, etc.", "Glass-plate, sheet, etc.",
-        "Shingles, wallboard", "Nontextile floor tiles", "Steelmaking materials",
-        "Iron and steel mill products", "Bauxite and aluminum", "Copper", "Nickel", "Tin", "Zinc",
-        "Nonmonetary gold", "Other precious metals", "Nonferrous metals, other",
-        "Iron and steel products, n.e.c.", "Iron and steel, advanced", "Finished metal shapes",
-        "Sulfur, nonmetallic minerals", "Synthetic rubber--primary", "Blank tapes, audio & visual",
-        "Industrial supplies, other", "Generators, accessories", "Electric apparatus",
-        "Drilling & oilfield equipment", "Specialized mining", "Excavating machinery",
-        "Nonfarm tractors and parts", "Industrial engines", "Food, tobacco machinery",
-        "Metalworking machine tools", "Textile, sewing machines", "Wood, glass, plastic",
-        "Pulp and paper machinery", "Measuring, testing, control instruments",
-        "Materials handling equipment", "Industrial machines, other",
-        "Photo, service industry machinery", "Agricultural machinery, equipment", "Computers",
-        "Computer accessories", "Semiconductors", "Telecommunications equipment",
-        "Business machines and equipment", "Laboratory testing instruments", "Medicinal equipment",
-        "Civilian aircraft", "Parts-civilian aircraft", "Engines-civilian aircraft",
-        "Railway transportation equipment", "Vessels, except scrap", "Commercial vessels, other",
-        "Marine engines, parts", "Spacecraft, excluding military", "Passenger cars, new and used",
-        "Trucks, buses, and special purpose vehicles", "Bodies and chassis for trucks and buses",
+        "Green coffee",
+        "Cocoa beans",
+        "Cane and beet sugar",
+        "Meat products",
+        "Dairy products and eggs",
+        "Fruits, frozen juices",
+        "Vegetables",
+        "Nuts",
+        "Food oils, oilseeds",
+        "Bakery products",
+        "Tea, spices, etc.",
+        "Other foods",
+        "Wine, beer, and related products",
+        "Feedstuff and foodgrains",
+        "Fish and shellfish",
+        "Alcoholic beverages, excluding wine",
+        "Nonagricultural foods, etc.",
+        "Crude oil",
+        "Fuel oil",
+        "Petroleum products, other",
+        "Liquefied petroleum gases",
+        "Coal and related fuels",
+        "Gas-natural",
+        "Nuclear fuel materials",
+        "Electric energy",
+        "Pulpwood and woodpulp",
+        "Newsprint",
+        "Paper and paper products",
+        "Cotton, natural fibers",
+        "Hides and skins",
+        "Natural rubber",
+        "Farming materials, livestock",
+        "Tobacco, waxes, etc.",
+        "Cotton cloth, fabrics",
+        "Wool, silk, etc.",
+        "Synthetic cloth",
+        "Hair, waste materials",
+        "Finished textile supplies",
+        "Leather and furs",
+        "Materials, excluding chemicals",
+        "Plastic materials",
+        "Chemicals-fertilizers",
+        "Chemicals-inorganic",
+        "Chemicals-organic",
+        "Chemicals-other, n.e.c.",
+        "Lumber",
+        "Plywood and veneers",
+        "Stone, sand, cement, etc.",
+        "Glass-plate, sheet, etc.",
+        "Shingles, wallboard",
+        "Nontextile floor tiles",
+        "Steelmaking materials",
+        "Iron and steel mill products",
+        "Bauxite and aluminum",
+        "Copper",
+        "Nickel",
+        "Tin",
+        "Zinc",
+        "Nonmonetary gold",
+        "Other precious metals",
+        "Nonferrous metals, other",
+        "Iron and steel products, n.e.c.",
+        "Iron and steel, advanced",
+        "Finished metal shapes",
+        "Sulfur, nonmetallic minerals",
+        "Synthetic rubber--primary",
+        "Blank tapes, audio & visual",
+        "Industrial supplies, other",
+        "Generators, accessories",
+        "Electric apparatus",
+        "Drilling & oilfield equipment",
+        "Specialized mining",
+        "Excavating machinery",
+        "Nonfarm tractors and parts",
+        "Industrial engines",
+        "Food, tobacco machinery",
+        "Metalworking machine tools",
+        "Textile, sewing machines",
+        "Wood, glass, plastic",
+        "Pulp and paper machinery",
+        "Measuring, testing, control instruments",
+        "Materials handling equipment",
+        "Industrial machines, other",
+        "Photo, service industry machinery",
+        "Agricultural machinery, equipment",
+        "Computers",
+        "Computer accessories",
+        "Semiconductors",
+        "Telecommunications equipment",
+        "Business machines and equipment",
+        "Laboratory testing instruments",
+        "Medicinal equipment",
+        "Civilian aircraft",
+        "Parts-civilian aircraft",
+        "Engines-civilian aircraft",
+        "Railway transportation equipment",
+        "Vessels, except scrap",
+        "Commercial vessels, other",
+        "Marine engines, parts",
+        "Spacecraft, excluding military",
+        "Passenger cars, new and used",
+        "Trucks, buses, and special purpose vehicles",
+        "Bodies and chassis for trucks and buses",
         "Engines and engine parts (carburetors, pistons, rings, and valves)",
-        "Bodies and chassis for passenger cars", "Automotive tires and tubes",
-        "Other parts and accessories of vehicles", "Apparel, household goods - cotton",
-        "Apparel, household goods - wool", "Apparel, textiles, nonwool or cotton",
-        "Apparel,household goods-nontextile", "Footwear", "Camping apparel and gear",
-        "Pharmaceutical preparations", "Books, printed matter", "Toiletries and cosmetics",
-        "Other consumer nondurables", "Furniture, household goods, etc.", "Glassware, chinaware",
-        "Cookware, cutlery, tools", "Household appliances", "Rugs",
-        "Cell phones and other household goods, n.e.c.", "Motorcycles and parts",
-        "Pleasure boats and motors", "Toys, games, and sporting goods", "Photo equipment",
-        "Musical instruments", "Televisions and video equipment", "Stereo equipment, etc",
-        "Recorded media"
+        "Bodies and chassis for passenger cars",
+        "Automotive tires and tubes",
+        "Other parts and accessories of vehicles",
+        "Apparel, household goods - cotton",
+        "Apparel, household goods - wool",
+        "Apparel, textiles, nonwool or cotton",
+        "Apparel,household goods-nontextile",
+        "Footwear",
+        "Camping apparel and gear",
+        "Pharmaceutical preparations",
+        "Books, printed matter",
+        "Toiletries and cosmetics",
+        "Other consumer nondurables",
+        "Furniture, household goods, etc.",
+        "Glassware, chinaware",
+        "Cookware, cutlery, tools",
+        "Household appliances",
+        "Rugs",
+        "Cell phones and other household goods, n.e.c.",
+        "Motorcycles and parts",
+        "Pleasure boats and motors",
+        "Toys, games, and sporting goods",
+        "Photo equipment",
+        "Musical instruments",
+        "Televisions and video equipment",
+        "Stereo equipment, etc",
+        "Recorded media",
     ]
 
     commodity = st.selectbox("Choose Commodity", commodity_list)
 
     year = st.selectbox("Select Year", list(range(2015, 2024)))
-    top_n = st.slider("Number of Top Risky Countries", min_value=1, max_value=10, value=3)
+    top_n = st.slider(
+        "Number of Top Risky Countries", min_value=1, max_value=10, value=3
+    )
 
     if st.button("Get Risk Data"):
         with st.spinner("Fetching data..."):
             response = requests.get(
                 f"{API_URL}/top-risk-countries/",
-                params={"commodity": commodity, "year": year, "top_n": top_n}
+                params={"commodity": commodity, "year": year, "top_n": top_n},
             )
             if response.status_code == 200:
                 data = response.json()
@@ -87,10 +177,15 @@ with tab1:
                 st.success(f"Top {top_n} Risky Countries for {commodity} in {year}")
                 st.dataframe(top_risks)
 
-                fig = px.bar(top_risks, x="Country", y="RiskPercentage",
-                             title=f"Top {top_n} Risky Countries ({commodity}, {year})",
-                             labels={"RiskPercentage": "Risk (%)"},
-                             color="RiskPercentage", color_continuous_scale="Reds")
+                fig = px.bar(
+                    top_risks,
+                    x="Country",
+                    y="RiskPercentage",
+                    title=f"Top {top_n} Risky Countries ({commodity}, {year})",
+                    labels={"RiskPercentage": "Risk (%)"},
+                    color="RiskPercentage",
+                    color_continuous_scale="Reds",
+                )
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.error("No data found or API error.")
@@ -99,24 +194,34 @@ with tab1:
 with tab2:
     st.title("🤖 Chat with RiskBot")
 
-    option = st.radio("Choose input method:", ["Ask a Question", "Upload a PDF", "Voice Query"])
+    option = st.radio(
+        "Choose input method:", ["Ask a Question", "Upload a PDF", "Voice Query"]
+    )
 
     def handle_risk_fetch(commodity, year, title_prefix="", only_political=True):
         res = requests.get(
             f"{API_URL}/risk-score/",
-            params={"commodity": commodity, "year": year, "only_political": only_political}
+            params={
+                "commodity": commodity,
+                "year": year,
+                "only_political": only_political,
+            },
         )
         if res.status_code == 200:
             risk_data = pd.DataFrame(res.json()["all_countries"])
             st.dataframe(risk_data)
-            fig = px.bar(risk_data.head(10), x="Country", y="RiskPercentage",
-                         title=f"{title_prefix}{commodity} ({year})",
-                         labels={"RiskPercentage": "Political Risk (%)"},
-                         color="RiskPercentage", color_continuous_scale="OrRd")
+            fig = px.bar(
+                risk_data.head(10),
+                x="Country",
+                y="RiskPercentage",
+                title=f"{title_prefix}{commodity} ({year})",
+                labels={"RiskPercentage": "Political Risk (%)"},
+                color="RiskPercentage",
+                color_continuous_scale="OrRd",
+            )
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.error("Risk data not found for extracted parameters.")
-
 
     if option == "Ask a Question":
         user_query = st.text_area("Enter your question:")
@@ -130,12 +235,16 @@ with tab2:
                         response = client.chat.completions.create(
                             model="gpt-4",
                             messages=[
-                                {"role": "system", "content": (
-                                    "You are a helpful assistant for supply chain risk analysis. "
-                                    "If the user asks about commodities or years, try to extract a JSON with keys 'commodity' and 'year'. "
-                                    "Otherwise, answer their question normally.")},
-                                {"role": "user", "content": user_query}
-                            ]
+                                {
+                                    "role": "system",
+                                    "content": (
+                                        "You are a helpful assistant for supply chain risk analysis. "
+                                        "If the user asks about commodities or years, try to extract a JSON with keys 'commodity' and 'year'. "
+                                        "Otherwise, answer their question normally."
+                                    ),
+                                },
+                                {"role": "user", "content": user_query},
+                            ],
                         )
 
                         answer = response.choices[0].message.content
@@ -145,16 +254,34 @@ with tab2:
                         # Try parsing JSON if present
                         try:
                             result = json.loads(answer)
-                            if "commodity" in result and "year" in result:
-                                st.info(f"Detected Commodity: {result['commodity']} | Year: {result['year']}")
-                                handle_risk_fetch(result['commodity'], int(result['year']),
-                                                  title_prefix="Top Risk Countries by Political Risk: ")
+                            # Normalize commodity casing
+                            matched_commodity = next(
+                                (
+                                    c
+                                    for c in commodity_list
+                                    if c.lower() == result["commodity"].lower()
+                                ),
+                                None,
+                            )
+
+                            if matched_commodity:
+                                st.info(
+                                    f"Matched Commodity: {matched_commodity} | Year: {result['year']}"
+                                )
+                                handle_risk_fetch(
+                                    matched_commodity,
+                                    int(result["year"]),
+                                    title_prefix="Top Risk Countries by Political Risk: ",
+                                )
+                            else:
+                                st.warning(
+                                    f"Commodity '{result['commodity']}' not recognized."
+                                )
                         except json.JSONDecodeError:
                             pass
 
                     except Exception as e:
                         st.error(f"Error: {str(e)}")
-
 
     elif option == "Upload a PDF":
         uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
@@ -176,23 +303,30 @@ Text: {full_text[:3000]}
                         chat_response = client.chat.completions.create(
                             model="gpt-4",
                             messages=[
-                                {"role": "system", "content": "You extract commodity and year from documents."},
-                                {"role": "user", "content": prompt}
-                            ]
+                                {
+                                    "role": "system",
+                                    "content": "You extract commodity and year from documents.",
+                                },
+                                {"role": "user", "content": prompt},
+                            ],
                         )
                         content = chat_response.choices[0].message.content
                         st.markdown("**ChatGPT Response:**")
                         st.code(content, language="json")
 
                         result = json.loads(content)
-                        handle_risk_fetch(result["commodity"], int(result["year"]), title_prefix="Risk Report: ")
+                        handle_risk_fetch(
+                            result["commodity"],
+                            int(result["year"]),
+                            title_prefix="Risk Report: ",
+                        )
                     except Exception as e:
                         st.error(f"Error: {str(e)}")
 
     elif option == "Voice Query":
         st.subheader("🎤 Speak Your Query")
 
-        wav_audio_data = st_audiorec()
+        wav_audio_data = audiorecorder()
 
         if wav_audio_data is not None:
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
@@ -212,9 +346,12 @@ Text: {full_text[:3000]}
                         response = client.chat.completions.create(
                             model="gpt-4",
                             messages=[
-                                {"role": "system", "content": "You answer supply chain risk questions. Extract commodity and year if available and return JSON."},
-                                {"role": "user", "content": transcript}
-                            ]
+                                {
+                                    "role": "system",
+                                    "content": "You answer supply chain risk questions. Extract commodity and year if available and return JSON.",
+                                },
+                                {"role": "user", "content": transcript},
+                            ],
                         )
                         content = response.choices[0].message.content
                         st.markdown("### 🤖 Response")
@@ -222,7 +359,11 @@ Text: {full_text[:3000]}
 
                         try:
                             result = json.loads(content)
-                            handle_risk_fetch(result["commodity"], int(result["year"]), title_prefix="Voice Risk Report: ")
+                            handle_risk_fetch(
+                                result["commodity"],
+                                int(result["year"]),
+                                title_prefix="Voice Risk Report: ",
+                            )
                         except json.JSONDecodeError:
                             pass
 
