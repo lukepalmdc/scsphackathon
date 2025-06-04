@@ -359,11 +359,25 @@ Text: {full_text[:3000]}
 
                         try:
                             result = json.loads(content)
-                            handle_risk_fetch(
-                                result["commodity"],
-                                int(result["year"]),
-                                title_prefix="Voice Risk Report: ",
+                            matched_commodity = next(
+                                (
+                                    c
+                                    for c in commodity_list
+                                    if c.lower() == result["commodity"].lower()
+                                ),
+                                None,
                             )
+
+                            if matched_commodity:
+                                handle_risk_fetch(
+                                    matched_commodity,
+                                    int(result["year"]),
+                                    title_prefix="Voice Risk Report: ",
+                                )
+                            else:
+                                st.warning(
+                                    f"Commodity '{result['commodity']}' not recognized."
+                                )
                         except json.JSONDecodeError:
                             pass
 
