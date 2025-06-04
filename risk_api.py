@@ -5,10 +5,11 @@ from sklearn.preprocessing import MinMaxScaler
 app = FastAPI(title="Supply Chain Risk API")
 
 # --- Load Data ---
-imports_df = pd.read_csv(r"C:\Users\aishw\Downloads\Cleaned_U_S_Imports_from_2012.csv")
-lpi_df = pd.read_csv(r"C:\Users\aishw\Downloads\Interpolated_LPI_2015-2024.csv")
-wgi_df = pd.read_excel(r"C:\Users\aishw\Downloads\widget1.xlsx")
-consumption_df = pd.read_excel(r"C:\Users\aishw\Downloads\demo_data_2015_2025.xlsx")
+imports_df = pd.read_csv(r"https://drive.google.com/file/d/1nuueoWFkfPRDJjgWtYcfJj0ffoIryvGp/view?usp=drive_link")
+lpi_df = pd.read_csv(r"https://drive.google.com/file/d/1GlWo2ybad5FhIGnfUkSiQoy792lZIntd/view?usp=drive_link")
+wgi_df = pd.read_excel(r"https://docs.google.com/spreadsheets/d/11VGF7ldEfBhMd7XQ78q8sNpe-1Nj6kLU/edit?usp=drive_link&ouid=110174359114309180227&rtpof=true&sd=true")
+consumption_df = pd.read_excel(r"https://docs.google.com/spreadsheets/d/18GPtJb8-2IG41kKzle1_0XV_nocmu1nFMA01KS4buHY/edit?usp=drive_link")
+
 
 # --- Clean and Prepare WGI ---
 wgi_df_cleaned = wgi_df[wgi_df["estimate"] != ".."].copy()
