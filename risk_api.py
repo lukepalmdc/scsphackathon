@@ -31,7 +31,7 @@ wgi_pivot = wgi_pivot.rename(columns={
 lpi_clean = lpi_df[["Country", "Year", "LPI_Score_Interpolated"]].rename(columns={"LPI_Score_Interpolated": "LPI_Score"})
 imports_clean = imports_df[imports_df["Country"] != "World Total"].copy()
 consumption_clean = consumption_df.rename(columns={
-    "Year": "ConsumptionYear", "Commodity Type": "Commodity",
+    "Year": "ConsumptionYear", "Commodity type": "Commodity",
     "Overall Consumption Percentage": "ConsumptionPercentage"
 })
 
