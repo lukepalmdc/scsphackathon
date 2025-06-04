@@ -10,7 +10,9 @@ import speech_recognition as sr
 from st_audiorec import st_audiorec
 
 # --- Set your OpenAI API Key ---
-client = OpenAI(api_key="your-api-key-here")
+api_key = st.secrets['API_KEY']
+
+client = OpenAI(api_key=api_key)
 
 API_URL = "https://scsphackathon.onrender.com"
 
