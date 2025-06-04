@@ -32,7 +32,7 @@ lpi_clean = lpi_df[["Country", "Year", "LPI_Score_Interpolated"]].rename(columns
 imports_clean = imports_df[imports_df["Country"] != "World Total"].copy()
 consumption_clean = consumption_df.rename(columns={
     "Year": "ConsumptionYear", "Commodity type": "Commodity",
-    "Overall Consumption Percentage": "ConsumptionPercentage"
+    "Overall consumption percentage": "ConsumptionPercentage"
 })
 
 # --- Merge All ---
