@@ -1,35 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import RadarRiskChart from "./components/RadarRiskChart";
+import DependencyBarChart from "./components/DependencyBarChart";
 
 function App() {
   const [prompt, setPrompt] = useState("");
   const [history, setHistory] = useState([]);
   const [error, setError] = useState(null);
+  const [topRisks, setTopRisks] = useState([]);
+  const [filteredRisks, setFilteredRisks] = useState([]);
+
+  const fetchTopRiskCountries = async () => {
+    try {
+        const res = await fetch("http://localhost:8000/api/top-risk-countries");
+        const data = await res.json();
+        setTopRisks(data);
+    } catch (err) {
+        console.error("Error fetching risk countries:", err);
+    }
+};
 
   const handleSend = async () => {
-    if (!prompt.trim()) return;
+  if (!prompt.trim()) return;
 
-    const newHistory = [...history, { role: "user", content: prompt }];
-    setHistory(newHistory);
-    setPrompt("");
+  const newHistory = [...history, { role: "user", content: prompt }];
+  setHistory(newHistory);
+  setPrompt("");
 
-    try {
-      const res = await fetch("http://localhost:8000/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await res.json();
+  try {
+    const res = await fetch("http://localhost:8000/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
+    });
 
-      if (res.ok) {
-        setHistory([...newHistory, { role: "assistant", content: data.reply }]);
-        setError(null);
-      } else {
-        setError(data.error || "Unknown error");
+    const data = await res.json();
+
+    if (res.ok) {
+      const assistantMessage = { role: "assistant", content: data.reply };
+      setHistory([...newHistory, assistantMessage]);
+      setError(null);
+
+      // === Attempt to extract {"compare": [...]} JSON block from GPT reply
+      const match = data.reply.match(/{[^}]*"compare"[^}]*}/s);
+      if (match) {
+        try {
+          const parsed = JSON.parse(match[0]);
+          if (parsed.compare && Array.isArray(parsed.compare)) {
+            const filtered = topRisks.filter(r =>
+              parsed.compare.includes(r.partner)
+            );
+            setFilteredRisks(filtered); // Update your chart data
+          }
+        } catch (jsonErr) {
+          console.warn("GPT returned invalid JSON compare block:", jsonErr);
+        }
       }
-    } catch (err) {
-      setError("Failed to connect to backend.");
+
+    } else {
+      setError(data.error || "Unknown error");
     }
-  };
+  } catch (err) {
+    setError("Failed to connect to backend.");
+  }
+};
+
+  useEffect(() => {
+  fetchTopRiskCountries();
+}, []);
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
@@ -57,6 +94,21 @@ function App() {
           </div>
         ))}
       </div>
+      <div style={{ marginTop: '2rem' }}>
+  <h2>📈 Supply Chain Dependency</h2>
+  <DependencyBarChart data={filteredRisks.length > 0 ? filteredRisks : topRisks} />
+</div>
+      <div style={{ marginTop: '2rem' }}>
+  <h2>🌍 Top 3 High-Risk Trade Partners</h2>
+  <RadarRiskChart data={filteredRisks.length > 0 ? filteredRisks : topRisks} />
+  <ul>
+    {topRisks.map((item, idx) => (
+      <li key={idx}>
+        <strong>{item.partner}</strong>: Risk Score = {item.risk_score.toFixed(2)}
+      </li>
+    ))}
+  </ul>
+</div>
     </div>
   );
 }
