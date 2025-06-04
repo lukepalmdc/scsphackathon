@@ -1,4 +1,5 @@
 fastapi 
 pandas
 scikit-learn
+openpyxl
 uvicorn[standard]
