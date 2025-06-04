@@ -7,11 +7,10 @@ import json
 from openai import OpenAI
 import tempfile
 import speech_recognition as sr
-from streamlit_audiorecorder import audiorecorder
+from st_audiorec import st_audiorec
 
 # --- Set your OpenAI API Key ---
-client = OpenAI(api_key="your-api-key-here")
-
+client = OpenAI(api_key=""
 API_URL = "http://127.0.0.1:8000"
 
 st.set_page_config(page_title="Supply Chain Risk Dashboard", layout="wide")
@@ -21,155 +20,65 @@ tab1, tab2 = st.tabs(["Risk Dashboard", "Chatbot"])
 
 # --- Tab 1: Risk Dashboard ---
 with tab1:
-    st.title("Supply Chain Risk Dashboard")
+    st.title("SupplyGaurd Risk Daskboard")
     st.markdown("Select a commodity and year to view the top risk countries.")
 
     commodity_list = [
-        "Green coffee",
-        "Cocoa beans",
-        "Cane and beet sugar",
-        "Meat products",
-        "Dairy products and eggs",
-        "Fruits, frozen juices",
-        "Vegetables",
-        "Nuts",
-        "Food oils, oilseeds",
-        "Bakery products",
-        "Tea, spices, etc.",
-        "Other foods",
-        "Wine, beer, and related products",
-        "Feedstuff and foodgrains",
-        "Fish and shellfish",
-        "Alcoholic beverages, excluding wine",
-        "Nonagricultural foods, etc.",
-        "Crude oil",
-        "Fuel oil",
-        "Petroleum products, other",
-        "Liquefied petroleum gases",
-        "Coal and related fuels",
-        "Gas-natural",
-        "Nuclear fuel materials",
-        "Electric energy",
-        "Pulpwood and woodpulp",
-        "Newsprint",
-        "Paper and paper products",
-        "Cotton, natural fibers",
-        "Hides and skins",
-        "Natural rubber",
-        "Farming materials, livestock",
-        "Tobacco, waxes, etc.",
-        "Cotton cloth, fabrics",
-        "Wool, silk, etc.",
-        "Synthetic cloth",
-        "Hair, waste materials",
-        "Finished textile supplies",
-        "Leather and furs",
-        "Materials, excluding chemicals",
-        "Plastic materials",
-        "Chemicals-fertilizers",
-        "Chemicals-inorganic",
-        "Chemicals-organic",
-        "Chemicals-other, n.e.c.",
-        "Lumber",
-        "Plywood and veneers",
-        "Stone, sand, cement, etc.",
-        "Glass-plate, sheet, etc.",
-        "Shingles, wallboard",
-        "Nontextile floor tiles",
-        "Steelmaking materials",
-        "Iron and steel mill products",
-        "Bauxite and aluminum",
-        "Copper",
-        "Nickel",
-        "Tin",
-        "Zinc",
-        "Nonmonetary gold",
-        "Other precious metals",
-        "Nonferrous metals, other",
-        "Iron and steel products, n.e.c.",
-        "Iron and steel, advanced",
-        "Finished metal shapes",
-        "Sulfur, nonmetallic minerals",
-        "Synthetic rubber--primary",
-        "Blank tapes, audio & visual",
-        "Industrial supplies, other",
-        "Generators, accessories",
-        "Electric apparatus",
-        "Drilling & oilfield equipment",
-        "Specialized mining",
-        "Excavating machinery",
-        "Nonfarm tractors and parts",
-        "Industrial engines",
-        "Food, tobacco machinery",
-        "Metalworking machine tools",
-        "Textile, sewing machines",
-        "Wood, glass, plastic",
-        "Pulp and paper machinery",
-        "Measuring, testing, control instruments",
-        "Materials handling equipment",
-        "Industrial machines, other",
-        "Photo, service industry machinery",
-        "Agricultural machinery, equipment",
-        "Computers",
-        "Computer accessories",
-        "Semiconductors",
-        "Telecommunications equipment",
-        "Business machines and equipment",
-        "Laboratory testing instruments",
-        "Medicinal equipment",
-        "Civilian aircraft",
-        "Parts-civilian aircraft",
-        "Engines-civilian aircraft",
-        "Railway transportation equipment",
-        "Vessels, except scrap",
-        "Commercial vessels, other",
-        "Marine engines, parts",
-        "Spacecraft, excluding military",
-        "Passenger cars, new and used",
-        "Trucks, buses, and special purpose vehicles",
-        "Bodies and chassis for trucks and buses",
+        "Green coffee", "Cocoa beans", "Cane and beet sugar", "Meat products", "Dairy products and eggs",
+        "Fruits, frozen juices", "Vegetables", "Nuts", "Food oils, oilseeds", "Bakery products",
+        "Tea, spices, etc.", "Other foods", "Wine, beer, and related products",
+        "Feedstuff and foodgrains", "Fish and shellfish", "Alcoholic beverages, excluding wine",
+        "Nonagricultural foods, etc.", "Crude oil", "Fuel oil", "Petroleum products, other",
+        "Liquefied petroleum gases", "Coal and related fuels", "Gas-natural", "Nuclear fuel materials",
+        "Electric energy", "Pulpwood and woodpulp", "Newsprint", "Paper and paper products",
+        "Cotton, natural fibers", "Hides and skins", "Natural rubber", "Farming materials, livestock",
+        "Tobacco, waxes, etc.", "Cotton cloth, fabrics", "Wool, silk, etc.", "Synthetic cloth",
+        "Hair, waste materials", "Finished textile supplies", "Leather and furs",
+        "Materials, excluding chemicals", "Plastic materials", "Chemicals-fertilizers",
+        "Chemicals-inorganic", "Chemicals-organic", "Chemicals-other, n.e.c.", "Lumber",
+        "Plywood and veneers", "Stone, sand, cement, etc.", "Glass-plate, sheet, etc.",
+        "Shingles, wallboard", "Nontextile floor tiles", "Steelmaking materials",
+        "Iron and steel mill products", "Bauxite and aluminum", "Copper", "Nickel", "Tin", "Zinc",
+        "Nonmonetary gold", "Other precious metals", "Nonferrous metals, other",
+        "Iron and steel products, n.e.c.", "Iron and steel, advanced", "Finished metal shapes",
+        "Sulfur, nonmetallic minerals", "Synthetic rubber--primary", "Blank tapes, audio & visual",
+        "Industrial supplies, other", "Generators, accessories", "Electric apparatus",
+        "Drilling & oilfield equipment", "Specialized mining", "Excavating machinery",
+        "Nonfarm tractors and parts", "Industrial engines", "Food, tobacco machinery",
+        "Metalworking machine tools", "Textile, sewing machines", "Wood, glass, plastic",
+        "Pulp and paper machinery", "Measuring, testing, control instruments",
+        "Materials handling equipment", "Industrial machines, other",
+        "Photo, service industry machinery", "Agricultural machinery, equipment", "Computers",
+        "Computer accessories", "Semiconductors", "Telecommunications equipment",
+        "Business machines and equipment", "Laboratory testing instruments", "Medicinal equipment",
+        "Civilian aircraft", "Parts-civilian aircraft", "Engines-civilian aircraft",
+        "Railway transportation equipment", "Vessels, except scrap", "Commercial vessels, other",
+        "Marine engines, parts", "Spacecraft, excluding military", "Passenger cars, new and used",
+        "Trucks, buses, and special purpose vehicles", "Bodies and chassis for trucks and buses",
         "Engines and engine parts (carburetors, pistons, rings, and valves)",
-        "Bodies and chassis for passenger cars",
-        "Automotive tires and tubes",
-        "Other parts and accessories of vehicles",
-        "Apparel, household goods - cotton",
-        "Apparel, household goods - wool",
-        "Apparel, textiles, nonwool or cotton",
-        "Apparel,household goods-nontextile",
-        "Footwear",
-        "Camping apparel and gear",
-        "Pharmaceutical preparations",
-        "Books, printed matter",
-        "Toiletries and cosmetics",
-        "Other consumer nondurables",
-        "Furniture, household goods, etc.",
-        "Glassware, chinaware",
-        "Cookware, cutlery, tools",
-        "Household appliances",
-        "Rugs",
-        "Cell phones and other household goods, n.e.c.",
-        "Motorcycles and parts",
-        "Pleasure boats and motors",
-        "Toys, games, and sporting goods",
-        "Photo equipment",
-        "Musical instruments",
-        "Televisions and video equipment",
-        "Stereo equipment, etc",
-        "Recorded media",
+        "Bodies and chassis for passenger cars", "Automotive tires and tubes",
+        "Other parts and accessories of vehicles", "Apparel, household goods - cotton",
+        "Apparel, household goods - wool", "Apparel, textiles, nonwool or cotton",
+        "Apparel,household goods-nontextile", "Footwear", "Camping apparel and gear",
+        "Pharmaceutical preparations", "Books, printed matter", "Toiletries and cosmetics",
+        "Other consumer nondurables", "Furniture, household goods, etc.", "Glassware, chinaware",
+        "Cookware, cutlery, tools", "Household appliances", "Rugs",
+        "Cell phones and other household goods, n.e.c.", "Motorcycles and parts",
+        "Pleasure boats and motors", "Toys, games, and sporting goods", "Photo equipment",
+        "Musical instruments", "Televisions and video equipment", "Stereo equipment, etc",
+        "Recorded media"
     ]
 
     commodity = st.selectbox("Choose Commodity", commodity_list)
 
     year = st.selectbox("Select Year", list(range(2015, 2024)))
-    top_n = st.slider(
-        "Number of Top Risky Countries", min_value=1, max_value=10, value=3
-    )
+    top_n = st.slider("Number of Top Risky Countries", min_value=1, max_value=10, value=3)
 
     if st.button("Get Risk Data"):
         with st.spinner("Fetching data..."):
             response = requests.get(
                 f"{API_URL}/top-risk-countries/",
-                params={"commodity": commodity, "year": year, "top_n": top_n},
+                params={"commodity": commodity, "year": year, "top_n": top_n}
             )
             if response.status_code == 200:
                 data = response.json()
@@ -177,26 +86,20 @@ with tab1:
                 st.success(f"Top {top_n} Risky Countries for {commodity} in {year}")
                 st.dataframe(top_risks)
 
-                fig = px.bar(
-                    top_risks,
-                    x="Country",
-                    y="RiskPercentage",
-                    title=f"Top {top_n} Risky Countries ({commodity}, {year})",
-                    labels={"RiskPercentage": "Risk (%)"},
-                    color="RiskPercentage",
-                    color_continuous_scale="Reds",
-                )
+                fig = px.bar(top_risks, x="Country", y="RiskPercentage",
+                             title=f"Top {top_n} Risky Countries ({commodity}, {year})",
+                             labels={"RiskPercentage": "Risk (%)"},
+                             color="RiskPercentage", color_continuous_scale="Reds")
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.error("No data found or API error.")
 
 # --- Tab 2: Chatbot ---
 with tab2:
-    st.title("🤖 Chat with RiskBot")
+    st.title("🤖 Chat with SupplyGaurd RiskBot")
 
-    option = st.radio(
-        "Choose input method:", ["Ask a Question", "Upload a PDF", "Voice Query"]
-    )
+    option = st.radio("Choose input method:", ["Ask a Question", "Upload a PDF", "Voice Query"])
+
 
     def handle_risk_fetch(commodity, year, title_prefix="", only_political=True):
         res = requests.get(
@@ -222,6 +125,7 @@ with tab2:
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.error("Risk data not found for extracted parameters.")
+
 
     if option == "Ask a Question":
         user_query = st.text_area("Enter your question:")
@@ -296,10 +200,10 @@ with tab2:
                 with st.spinner("Analyzing..."):
                     try:
                         prompt = f"""
-You are a supply chain expert. A user has uploaded a document. Extract the commodity type and year mentioned in the document. 
-Return only a JSON with keys 'commodity' and 'year'.
-Text: {full_text[:3000]}
-                        """
+    You are a supply chain expert. A user has uploaded a document. Extract the commodity type and year mentioned in the document. 
+    Return only a JSON with keys 'commodity' and 'year'.
+    Text: {full_text[:3000]}
+                            """
                         chat_response = client.chat.completions.create(
                             model="gpt-4",
                             messages=[
