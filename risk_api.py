@@ -8,7 +8,7 @@ app = FastAPI(title="Supply Chain Risk API")
 imports_df = pd.read_csv(r"https://drive.google.com/uc?export=download&id=1nuueoWFkfPRDJjgWtYcfJj0ffoIryvGp")
 lpi_df = pd.read_csv(r"https://drive.google.com/uc?export=download&id=1GlWo2ybad5FhIGnfUkSiQoy792lZIntd")
 wgi_df = pd.read_excel(r"https://drive.google.com/uc?export=download&id=11VGF7ldEfBhMd7XQ78q8sNpe-1Nj6kLU")
-consumption_df = pd.read_excel(r"https://drive.google.com/uc?export=download&id=12HzcsHI4Y3hcWafDqobdoNNd8C0heMYC")
+consumption_df = pd.read_csv(r"https://drive.google.com/uc?export=download&id=12HzcsHI4Y3hcWafDqobdoNNd8C0heMYC")
 
 
 # --- Clean and Prepare WGI ---
