@@ -2,12 +2,15 @@
 import asyncio
 from typing import List, Dict
 from openai import AsyncOpenAI
+
 import json  # we’ll use the standard json module for parsing
+import pandas as pd
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. Configuration (async client)
 # ─────────────────────────────────────────────────────────────────────────────
-API_KEY = ""
+API_KEY = 
 client = AsyncOpenAI(api_key=API_KEY)
 LLM_MODEL = "gpt-4o-mini"  # or "gpt-4"/"gpt-4o" if available
 
@@ -100,7 +103,7 @@ class NAICSMapperAgent:
         )
 
         text = response.choices[0].message.content.strip()
-        print("RAW MODEL OUTPUT for component", component_name, ":\n", text, "\n---\n")
+      
 
         # 1) Try strict JSON parse
         try:
@@ -163,20 +166,29 @@ class ProductToNAICSPipeline:
 # 5. Async main entrypoint
 # ─────────────────────────────────────────────────────────────────────────────
 async def main():
-    pipeline = ProductToNAICSPipeline(client)
+    while True:
+        pipeline = ProductToNAICSPipeline(client)
 
-    product_name = input("Enter a product name: ").strip()
-    print(f"\nDecomposing \"{product_name}\" and mapping each component to NAICS:\n")
+        product_name = input("Enter a product name: ").strip()
+        if product_name == 'quit':
+            exit
+        print(f"\nDecomposing \"{product_name}\" and mapping each component to NAICS:\n")
 
-    mapping = await pipeline.lookup_product(product_name)
-    print(mapping)
-    for component, info in mapping.items():
-        code = info["NAICS_code"]
-        label = info["NAICS_label"]
-        print(f"- {component:25} → {code}  ({label})")
+        mapping = await pipeline.lookup_product(product_name)
+    
+        cw = pd.read_csv('end_use.csv')
+        cw['NAICS_code'] = cw['NAICS_code'].astype(str)
+        components = pd.DataFrame.from_dict(mapping, orient='index').reset_index().rename(columns={'index': 'component'})
+        components['NAICS_code'] = components['NAICS_code'].astype(str)
+        
+        components = components.merge(cw, on='NAICS_code')
+
+        components = components[['NAICS_label','component', 'END_USE']]
+        print(components)
+    
 
 
-          
+    
 
 if __name__ == "__main__":
     asyncio.run(main()) 
