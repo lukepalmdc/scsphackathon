@@ -24,9 +24,53 @@ with tab1:
     st.title("Supply Chain Risk Dashboard")
     st.markdown("Select a commodity and year to view the top risk countries.")
 
-    commodity = st.selectbox("Choose Commodity", [
-        "Semiconductors", "Rare Earth Metals", "Petroleum", "Fertilizers", "Wheat"
-    ])
+    commodity_list = [
+        "Green coffee", "Cocoa beans", "Cane and beet sugar", "Meat products", "Dairy products and eggs",
+        "Fruits, frozen juices", "Vegetables", "Nuts", "Food oils, oilseeds", "Bakery products",
+        "Tea, spices, etc.", "Other foods", "Wine, beer, and related products",
+        "Feedstuff and foodgrains", "Fish and shellfish", "Alcoholic beverages, excluding wine",
+        "Nonagricultural foods, etc.", "Crude oil", "Fuel oil", "Petroleum products, other",
+        "Liquefied petroleum gases", "Coal and related fuels", "Gas-natural", "Nuclear fuel materials",
+        "Electric energy", "Pulpwood and woodpulp", "Newsprint", "Paper and paper products",
+        "Cotton, natural fibers", "Hides and skins", "Natural rubber", "Farming materials, livestock",
+        "Tobacco, waxes, etc.", "Cotton cloth, fabrics", "Wool, silk, etc.", "Synthetic cloth",
+        "Hair, waste materials", "Finished textile supplies", "Leather and furs",
+        "Materials, excluding chemicals", "Plastic materials", "Chemicals-fertilizers",
+        "Chemicals-inorganic", "Chemicals-organic", "Chemicals-other, n.e.c.", "Lumber",
+        "Plywood and veneers", "Stone, sand, cement, etc.", "Glass-plate, sheet, etc.",
+        "Shingles, wallboard", "Nontextile floor tiles", "Steelmaking materials",
+        "Iron and steel mill products", "Bauxite and aluminum", "Copper", "Nickel", "Tin", "Zinc",
+        "Nonmonetary gold", "Other precious metals", "Nonferrous metals, other",
+        "Iron and steel products, n.e.c.", "Iron and steel, advanced", "Finished metal shapes",
+        "Sulfur, nonmetallic minerals", "Synthetic rubber--primary", "Blank tapes, audio & visual",
+        "Industrial supplies, other", "Generators, accessories", "Electric apparatus",
+        "Drilling & oilfield equipment", "Specialized mining", "Excavating machinery",
+        "Nonfarm tractors and parts", "Industrial engines", "Food, tobacco machinery",
+        "Metalworking machine tools", "Textile, sewing machines", "Wood, glass, plastic",
+        "Pulp and paper machinery", "Measuring, testing, control instruments",
+        "Materials handling equipment", "Industrial machines, other",
+        "Photo, service industry machinery", "Agricultural machinery, equipment", "Computers",
+        "Computer accessories", "Semiconductors", "Telecommunications equipment",
+        "Business machines and equipment", "Laboratory testing instruments", "Medicinal equipment",
+        "Civilian aircraft", "Parts-civilian aircraft", "Engines-civilian aircraft",
+        "Railway transportation equipment", "Vessels, except scrap", "Commercial vessels, other",
+        "Marine engines, parts", "Spacecraft, excluding military", "Passenger cars, new and used",
+        "Trucks, buses, and special purpose vehicles", "Bodies and chassis for trucks and buses",
+        "Engines and engine parts (carburetors, pistons, rings, and valves)",
+        "Bodies and chassis for passenger cars", "Automotive tires and tubes",
+        "Other parts and accessories of vehicles", "Apparel, household goods - cotton",
+        "Apparel, household goods - wool", "Apparel, textiles, nonwool or cotton",
+        "Apparel,household goods-nontextile", "Footwear", "Camping apparel and gear",
+        "Pharmaceutical preparations", "Books, printed matter", "Toiletries and cosmetics",
+        "Other consumer nondurables", "Furniture, household goods, etc.", "Glassware, chinaware",
+        "Cookware, cutlery, tools", "Household appliances", "Rugs",
+        "Cell phones and other household goods, n.e.c.", "Motorcycles and parts",
+        "Pleasure boats and motors", "Toys, games, and sporting goods", "Photo equipment",
+        "Musical instruments", "Televisions and video equipment", "Stereo equipment, etc",
+        "Recorded media"
+    ]
+
+    commodity = st.selectbox("Choose Commodity", commodity_list)
 
     year = st.selectbox("Select Year", list(range(2015, 2024)))
     top_n = st.slider("Number of Top Risky Countries", min_value=1, max_value=10, value=3)
