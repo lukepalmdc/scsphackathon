@@ -5,10 +5,10 @@ from sklearn.preprocessing import MinMaxScaler
 app = FastAPI(title="Supply Chain Risk API")
 
 # --- Load Data ---
-imports_df = pd.read_csv(r"https://drive.google.com/file/d/1nuueoWFkfPRDJjgWtYcfJj0ffoIryvGp/view?usp=drive_link")
-lpi_df = pd.read_csv(r"https://drive.google.com/file/d/1GlWo2ybad5FhIGnfUkSiQoy792lZIntd/view?usp=drive_link")
-wgi_df = pd.read_excel(r"https://docs.google.com/spreadsheets/d/11VGF7ldEfBhMd7XQ78q8sNpe-1Nj6kLU/edit?usp=drive_link&ouid=110174359114309180227&rtpof=true&sd=true")
-consumption_df = pd.read_excel(r"https://docs.google.com/spreadsheets/d/18GPtJb8-2IG41kKzle1_0XV_nocmu1nFMA01KS4buHY/edit?usp=drive_link")
+imports_df = pd.read_csv(r"https://drive.google.com/uc?export=download&id=1nuueoWFkfPRDJjgWtYcfJj0ffoIryvGp")
+lpi_df = pd.read_csv(r"https://drive.google.com/uc?export=download&id=1GlWo2ybad5FhIGnfUkSiQoy792lZIntd")
+wgi_df = pd.read_excel(r"https://drive.google.com/uc?export=download&id=11VGF7ldEfBhMd7XQ78q8sNpe-1Nj6kLU")
+consumption_df = pd.read_excel(r"https://drive.google.com/uc?export=download&id=12HzcsHI4Y3hcWafDqobdoNNd8C0heMYC")
 
 
 # --- Clean and Prepare WGI ---
