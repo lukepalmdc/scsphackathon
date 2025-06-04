@@ -12,7 +12,7 @@ from st_audiorec import st_audiorec
 # --- Set your OpenAI API Key ---
 client = OpenAI(api_key="your-api-key-here")
 
-API_URL = "http://127.0.0.1:8000"
+API_URL = "https://scsphackathon.onrender.com"
 
 st.set_page_config(page_title="Supply Chain Risk Dashboard", layout="wide")
 
